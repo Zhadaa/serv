@@ -103,14 +103,19 @@ int Server::handle_connection()
                 //Data received
                 int count = 0;
                 char buff[512] = "";
-                std::string txt = "";
                 while (1)
                 {
                     count = read(events[i].data.fd, buff, sizeof (buff));
 
                     if (count == -1 || !count) // End of data
                         break;
-                    txt.append(buff, count);
+                    write(1, buff, count);
+                    for (std::vector<int>::iterator it = this->cli_s.begin();
+                         it != this->cli_s.end(); ++it)
+                    {
+                        if (*it != events[i].data.fd)
+                            write(*it, buff, count);
+                    }
                 }
             }
         }
